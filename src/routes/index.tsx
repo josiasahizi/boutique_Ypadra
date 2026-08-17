@@ -273,6 +273,104 @@ function Index() {
           © 2026 YAPADRAP. Tous droits réservés.
         </div>
       </footer>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent className="flex w-full flex-col sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle className="font-display text-2xl uppercase tracking-[0.2em]">
+              Panier ({count})
+            </SheetTitle>
+          </SheetHeader>
+
+          {lines.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+              <ShoppingBag className="h-8 w-8 text-muted-foreground" aria-hidden />
+              <p className="text-sm text-muted-foreground">Votre panier est vide.</p>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="btn-ink hover:btn-ink-hover"
+              >
+                Continuer mes achats
+              </button>
+            </div>
+          ) : (
+            <>
+              <ul className="flex-1 space-y-6 overflow-y-auto px-6 py-2">
+                {lines.map((l) => (
+                  <li key={l.id} className="flex gap-4">
+                    <img
+                      src={l.img}
+                      alt={l.name}
+                      className="h-24 w-20 shrink-0 object-cover"
+                      loading="lazy"
+                    />
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="truncate text-sm">{l.name}</p>
+                        <button
+                          type="button"
+                          onClick={() => remove(l.id)}
+                          aria-label={`Retirer ${l.name}`}
+                          className="text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden />
+                        </button>
+                      </div>
+                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                        {fcfa(l.price)}
+                      </p>
+                      <div className="mt-auto flex items-center justify-between">
+                        <div className="flex items-center border border-border">
+                          <button
+                            type="button"
+                            onClick={() => setQty(l.id, -1)}
+                            aria-label="Diminuer la quantité"
+                            className="px-2 py-1.5 transition-colors hover:bg-secondary"
+                          >
+                            <Minus className="h-3.5 w-3.5" aria-hidden />
+                          </button>
+                          <span className="min-w-8 text-center text-sm">{l.qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => setQty(l.id, 1)}
+                            aria-label="Augmenter la quantité"
+                            className="px-2 py-1.5 transition-colors hover:bg-secondary"
+                          >
+                            <Plus className="h-3.5 w-3.5" aria-hidden />
+                          </button>
+                        </div>
+                        <span className="text-sm font-bold">{fcfa(l.price * l.qty)}</span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <SheetFooter className="border-t border-border/60">
+                <div className="w-full space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="uppercase tracking-[0.16em] text-muted-foreground">
+                      Sous-total
+                    </span>
+                    <span className="text-lg font-bold">{fcfa(total)}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Taxes incluses. Frais de livraison calculés au paiement.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => toast("Paiement bientôt disponible")}
+                    className="btn-ink hover:btn-ink-hover w-full"
+                  >
+                    Passer la commande
+                  </button>
+                </div>
+              </SheetFooter>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
