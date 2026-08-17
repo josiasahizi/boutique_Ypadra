@@ -93,9 +93,20 @@ function Index() {
             <a href="#journal" className="text-muted-foreground transition-colors hover:text-foreground">
               Recherche
             </a>
-            <a href="#collection" className="transition-colors hover:text-accent">
-              Panier (0)
-            </a>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label={`Ouvrir le panier, ${count} article${count > 1 ? "s" : ""}`}
+              className="relative flex items-center gap-2 uppercase tracking-[0.16em] transition-colors hover:text-accent"
+            >
+              <ShoppingBag className="h-4 w-4" aria-hidden />
+              <span className="hidden sm:inline">Panier</span>
+              {count > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                  {count}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </header>
