@@ -123,7 +123,7 @@ function Index() {
               </div>
               <div className="mt-5 flex items-baseline justify-between">
                 <h3 className="text-xl">{p.name}</h3>
-                <span className="text-sm text-muted-foreground">{p.price}</span>
+                <span className="text-sm font-bold text-foreground">{p.price}</span>
               </div>
               <p className="eyebrow mt-2">{p.tag}</p>
             </article>
