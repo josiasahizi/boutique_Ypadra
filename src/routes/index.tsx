@@ -7,13 +7,13 @@ import p3 from "@/assets/p3.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Alto Studio — Vêtements essentiels en fibres naturelles" },
+      { title: "YAPADRAP — Vêtements essentiels en fibres naturelles" },
       {
         name: "description",
         content:
-          "Alto Studio conçoit des pièces intemporelles en lin, coton et laine, fabriquées en petites séries dans des ateliers responsables.",
+          "YAPADRAP conçoit des pièces intemporelles en lin, coton et laine, fabriquées en petites séries dans des ateliers responsables.",
       },
-      { property: "og:title", content: "Alto Studio — Vêtements essentiels" },
+      { property: "og:title", content: "YAPADRAP — Vêtements essentiels" },
       {
         property: "og:description",
         content:
@@ -47,7 +47,7 @@ function Index() {
             ))}
           </nav>
           <a href="#" className="font-display text-2xl tracking-[0.3em] uppercase">
-            Alto
+            YAPADRAP
           </a>
           <div className="flex gap-6 text-xs uppercase tracking-[0.16em]">
             <a href="#journal" className="text-muted-foreground transition-colors hover:text-foreground">
@@ -187,7 +187,7 @@ function Index() {
       <footer className="border-t border-border/60">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="font-display text-2xl uppercase tracking-[0.3em]">Alto</p>
+            <p className="font-display text-2xl uppercase tracking-[0.3em]">YAPADRAP</p>
             <p className="mt-4 text-sm text-muted-foreground">
               Vêtements essentiels en fibres naturelles, conçus à Marseille.
             </p>
@@ -212,7 +212,7 @@ function Index() {
           ))}
         </div>
         <div className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground">
-          © 2026 Alto Studio. Tous droits réservés.
+          © 2026 YAPADRAP. Tous droits réservés.
         </div>
       </footer>
     </div>
