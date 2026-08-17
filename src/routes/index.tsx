@@ -9,25 +9,33 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import hero from "@/assets/hero.jpg";
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import p3 from "@/assets/p3.jpg";
+import hero from "@/assets/hero-abidjan.jpg";
+import pBlanc from "@/assets/prod-blanc.jpg";
+import pNoir from "@/assets/prod-noir.jpg";
+import pRose from "@/assets/prod-rose.jpg";
+import pGris from "@/assets/prod-gris.jpg";
+import pMarron from "@/assets/prod-marron.jpg";
+import ville1 from "@/assets/ville-1.jpg";
+import ville2 from "@/assets/ville-2.jpg";
+import ville3 from "@/assets/ville-3.jpg";
+import commu1 from "@/assets/commu-1.jpg";
+import commu2 from "@/assets/commu-2.jpg";
+import commu3 from "@/assets/commu-3.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "YAPADRAP — Vêtements essentiels en fibres naturelles" },
+      { title: "YAPADRAP — Streetwear né à Abidjan" },
       {
         name: "description",
         content:
-          "YAPADRAP conçoit des pièces intemporelles en lin, coton et laine, fabriquées en petites séries dans des ateliers responsables.",
+          "YAPADRAP, marque de streetwear ivoirienne née à Abidjan. Des pièces sobres et premium portées par un état d'esprit : avancer, créer, oser.",
       },
-      { property: "og:title", content: "YAPADRAP — Vêtements essentiels" },
+      { property: "og:title", content: "YAPADRAP — Plus qu'un mot. Un état d'esprit." },
       {
         property: "og:description",
         content:
-          "Pièces intemporelles en fibres naturelles, fabriquées en petites séries dans des ateliers responsables.",
+          "Streetwear international, identité profondément ivoirienne. Collections sobres, coupes oversize, matières durables.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -36,18 +44,27 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const nav = ["Nouveautés", "Femme", "Homme", "Accessoires", "Journal"];
+const nav = [
+  { label: "Collections", href: "#collections" },
+  { label: "L'univers", href: "#univers" },
+  { label: "Histoire", href: "#histoire" },
+  { label: "Abidjan", href: "#abidjan" },
+];
 
 const products = [
-  { id: "ojai", name: "Pull côtelé Ojai", price: 110000, img: p1, tag: "Laine mérinos" },
-  { id: "mesa", name: "Chemise ample Mesa", price: 81000, img: p2, tag: "Coton bio" },
-  { id: "dune", name: "Sandales Dune", price: 93000, img: p3, tag: "Cuir tanné" },
+  { id: "hoodie-blanc", name: "Hoodie oversize Blanc", price: 45000, img: pBlanc, tag: "Coton lourd 400g" },
+  { id: "tee-noir", name: "Tee-shirt boxy Noir", price: 22000, img: pNoir, tag: "Coton peigné" },
+  { id: "hoodie-rose", name: "Hoodie Rose poudré", price: 47000, img: pRose, tag: "Édition limitée" },
+  { id: "cargo-gris", name: "Cargo Gris anthracite", price: 39000, img: pGris, tag: "Twill résistant" },
+  { id: "veste-marron", name: "Veste zippée Marron", price: 58000, img: pMarron, tag: "Canvas délavé" },
 ];
 
 type Product = (typeof products)[number];
 type CartLine = { id: string; name: string; price: number; img: string; qty: number };
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ")} FCFA`;
+
+const quartiers = ["Treichville", "Cocody", "Yopougon", "Plateau", "Marcory", "Koumassi", "Abobo"];
 
 function Index() {
   const [open, setOpen] = useState(false);
@@ -68,41 +85,39 @@ function Index() {
 
   const setQty = (id: string, delta: number) =>
     setLines((prev) =>
-      prev
-        .map((l) => (l.id === id ? { ...l, qty: l.qty + delta } : l))
-        .filter((l) => l.qty > 0),
+      prev.map((l) => (l.id === id ? { ...l, qty: l.qty + delta } : l)).filter((l) => l.qty > 0),
     );
 
   const remove = (id: string) => setLines((prev) => prev.filter((l) => l.id !== id));
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <nav className="hidden gap-8 text-xs uppercase tracking-[0.16em] md:flex">
-            {nav.slice(0, 3).map((n) => (
-              <a key={n} href="#collection" className="text-muted-foreground transition-colors hover:text-foreground">
-                {n}
+      <header className="fixed top-0 z-30 w-full border-b border-white/15 bg-black/40 text-white backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <nav className="hidden gap-8 text-[11px] uppercase tracking-[0.2em] md:flex">
+            {nav.slice(0, 2).map((n) => (
+              <a key={n.href} href={n.href} className="opacity-70 transition-opacity hover:opacity-100">
+                {n.label}
               </a>
             ))}
           </nav>
-          <a href="#" className="font-display text-2xl font-bold tracking-[0.3em] uppercase">
+          <a href="#" className="font-display text-2xl tracking-[0.3em]">
             YAPADRAP
           </a>
-          <div className="flex gap-6 text-xs uppercase tracking-[0.16em]">
-            <a href="#journal" className="text-muted-foreground transition-colors hover:text-foreground">
-              Recherche
+          <div className="flex items-center gap-6 text-[11px] uppercase tracking-[0.2em]">
+            <a href="#communaute" className="hidden opacity-70 transition-opacity hover:opacity-100 sm:inline">
+              Communauté
             </a>
             <button
               type="button"
               onClick={() => setOpen(true)}
               aria-label={`Ouvrir le panier, ${count} article${count > 1 ? "s" : ""}`}
-              className="relative flex items-center gap-2 uppercase tracking-[0.16em] transition-colors hover:text-accent"
+              className="relative flex items-center gap-2"
             >
               <ShoppingBag className="h-4 w-4" aria-hidden />
               <span className="hidden sm:inline">Panier</span>
               {count > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-[10px] font-bold text-black">
                   {count}
                 </span>
               )}
@@ -111,156 +126,252 @@ function Index() {
         </div>
       </header>
 
-      <section className="relative">
+      {/* HERO */}
+      <section className="relative h-screen w-full">
         <img
           src={hero}
-          alt="Mannequin portant une chemise et un pantalon en lin écru contre un mur de plâtre chaud"
+          alt="Jeune homme en hoodie oversize dans une rue d'Abidjan"
           width={1600}
-          height={1200}
-          className="h-[78vh] w-full object-cover"
+          height={2000}
+          className="h-full w-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/40" />
         <div className="absolute inset-0 flex items-end">
-          <div className="mx-auto w-full max-w-7xl px-6 pb-14">
-            <p className="eyebrow text-primary/70">Collection Été 26</p>
-            <h1 className="mt-4 max-w-2xl text-5xl leading-[1.05] md:text-7xl">
-              Des pièces faites pour durer plus d'une saison
+          <div className="mx-auto w-full max-w-7xl px-6 pb-20 text-white">
+            <h1 className="font-display text-[15vw] leading-[0.85] tracking-tight sm:text-[11rem]">
+              YAPADRAP
             </h1>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <a href="#collection" className="btn-ink hover:btn-ink-hover">
-                Voir la collection
+            <p className="mt-4 max-w-md text-sm uppercase tracking-[0.28em] text-white/80">
+              Plus qu'un mot. Un état d'esprit.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <a
+                href="#collections"
+                className="bg-white px-9 py-4 text-[11px] uppercase tracking-[0.2em] text-black transition-opacity hover:opacity-85"
+              >
+                Voir les collections
               </a>
               <a
-                href="#journal"
-                className="btn-outline-ink hover:bg-primary hover:text-primary-foreground"
+                href="#histoire"
+                className="border border-white/70 px-9 py-4 text-[11px] uppercase tracking-[0.2em] text-white transition-colors hover:bg-white hover:text-black"
               >
-                Notre atelier
+                Notre histoire
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-y border-border/60 bg-secondary/40">
-        <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 text-center text-xs uppercase tracking-[0.18em] text-muted-foreground sm:grid-cols-3">
-          <span>Livraison offerte dès 150 €</span>
-          <span>Retours sous 30 jours</span>
-          <span>Ateliers certifiés en Europe</span>
-        </div>
-      </section>
-
-      <section id="collection" className="mx-auto max-w-7xl px-6 py-24">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      {/* UNIVERS */}
+      <section id="univers" className="bg-background">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-28 lg:grid-cols-[1fr_1.1fr]">
           <div>
-            <p className="eyebrow">Sélection</p>
-            <h2 className="mt-3 text-4xl md:text-5xl">Les essentiels</h2>
-          </div>
-          <a href="#collection" className="text-xs uppercase tracking-[0.18em] underline underline-offset-8">
-            Tout parcourir
-          </a>
-        </div>
-
-        <div className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <article key={p.name} className="group">
-              <div className="overflow-hidden bg-muted">
-                <img
-                  src={p.img}
-                  alt={p.name}
-                  loading="lazy"
-                  width={900}
-                  height={1100}
-                  className="aspect-[9/11] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                />
-              </div>
-              <div className="mt-5 flex items-baseline justify-between">
-                <h3 className="text-xl">{p.name}</h3>
-                <span className="text-sm font-bold text-foreground">{fcfa(p.price)}</span>
-              </div>
-              <p className="eyebrow mt-2">{p.tag}</p>
-              <button
-                type="button"
-                onClick={() => add(p)}
-                className="btn-ink hover:btn-ink-hover mt-4 w-full"
-              >
-                Ajouter au panier
-              </button>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="journal" className="border-t border-border/60 bg-secondary/30">
-        <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 py-24 lg:grid-cols-2">
-          <img
-            src={hero}
-            alt="Détail de tissu en lin naturel sous la lumière du jour"
-            loading="lazy"
-            width={1600}
-            height={1200}
-            className="aspect-[4/3] w-full object-cover"
-          />
-          <div>
-            <p className="eyebrow">Le journal</p>
-            <h2 className="mt-3 text-4xl leading-tight md:text-5xl">
-              Une matière, un atelier, une histoire
+            <p className="eyebrow">L'univers</p>
+            <h2 className="mt-4 text-5xl md:text-6xl">
+              « Yapadrap »<br />
+              ça veut dire : ça va aller
             </h2>
-            <p className="mt-6 max-w-lg leading-relaxed text-muted-foreground">
-              Chaque pièce naît d'une fibre choisie pour sa longévité : lin filé au Portugal, coton
-              biologique tissé en Espagne, laine peignée dans les Abruzzes. Nous produisons en
-              petites séries pour limiter les invendus et garantir un juste prix aux artisans.
+          </div>
+          <div className="space-y-6 text-lg leading-relaxed text-muted-foreground">
+            <p>
+              À Abidjan, on le dit pour rassurer, pour relancer, pour continuer malgré tout. Pas de
+              problème, pas de stress : on avance. C'est une manière d'être, une façon de porter
+              les jours difficiles avec le sourire.
             </p>
-            <a
-              href="#journal"
-              className="mt-8 inline-block text-xs uppercase tracking-[0.18em] underline underline-offset-8"
-            >
-              Lire l'article
-            </a>
+            <p>
+              YAPADRAP transforme cette phrase en vêtement. Des pièces sobres, épurées, taillées
+              large, pensées pour durer et pour se porter partout — de Treichville à n'importe
+              quelle rue du monde.
+            </p>
+            <div className="grid gap-6 pt-4 sm:grid-cols-3">
+              {[
+                { t: "Courage", d: "Avancer sans se plaindre." },
+                { t: "Créativité", d: "Faire beaucoup avec peu." },
+                { t: "Fierté", d: "Assumer d'où l'on vient." },
+              ].map((v) => (
+                <div key={v.t} className="border-t border-border pt-4">
+                  <p className="font-display text-xl text-foreground">{v.t}</p>
+                  <p className="mt-1 text-sm">{v.d}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <p className="eyebrow">Newsletter</p>
-        <h2 className="mt-3 text-4xl md:text-5xl">Restez proche de l'atelier</h2>
-        <p className="mt-4 text-muted-foreground">
-          Les nouveautés, les réassorts et les ventes privées, une fois par mois.
-        </p>
-        <form
-          className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <input
-            type="email"
-            required
-            placeholder="votre@email.com"
-            aria-label="Adresse e-mail"
-            className="w-full border border-input bg-card px-4 py-3 text-sm outline-none focus:border-accent"
-          />
-          <button type="submit" className="btn-ink hover:btn-ink-hover">
-            S'inscrire
-          </button>
-        </form>
+      {/* COLLECTIONS */}
+      <section id="collections" className="border-t border-border bg-secondary/40">
+        <div className="mx-auto max-w-7xl px-6 py-28">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">Collections</p>
+              <h2 className="mt-3 text-5xl md:text-6xl">Essentiels YAPADRAP</h2>
+            </div>
+            <p className="max-w-xs text-sm text-muted-foreground">
+              Noir, blanc, gris anthracite. Coupes oversize, matières lourdes, logo discret.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((p) => (
+              <article key={p.id} className="group">
+                <div className="overflow-hidden bg-muted">
+                  <img
+                    src={p.img}
+                    alt={p.name}
+                    loading="lazy"
+                    width={900}
+                    height={1100}
+                    className="aspect-[9/11] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                  />
+                </div>
+                <div className="mt-5 flex items-baseline justify-between gap-3">
+                  <h3 className="text-lg tracking-normal">{p.name}</h3>
+                  <span className="whitespace-nowrap text-sm font-bold text-foreground">
+                    {fcfa(p.price)}
+                  </span>
+                </div>
+                <p className="eyebrow mt-2">{p.tag}</p>
+                <button
+                  type="button"
+                  onClick={() => add(p)}
+                  className="btn-ink hover:btn-ink-hover mt-4 w-full"
+                >
+                  Ajouter au panier
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
-      <footer className="border-t border-border/60">
+      {/* HISTOIRE */}
+      <section id="histoire" className="bg-[oklch(0.145_0_0)] text-white">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-28 lg:grid-cols-2">
+          <img
+            src={ville3}
+            alt="Groupe de jeunes discutant dans une rue d'Abidjan au coucher du soleil"
+            loading="lazy"
+            width={1200}
+            height={1500}
+            className="aspect-[4/5] w-full object-cover grayscale"
+          />
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white/60">Notre histoire</p>
+            <h2 className="mt-4 text-5xl md:text-6xl">Née dans la rue, pensée pour le monde</h2>
+            <div className="mt-8 space-y-5 text-lg leading-relaxed text-white/70">
+              <p>
+                YAPADRAP est née d'une envie simple : donner une forme à ce que l'on entend chaque
+                jour dans les rues d'Abidjan. Une marque qui parle de résilience sans jamais la
+                mettre en scène.
+              </p>
+              <p>
+                Chaque pièce est dessinée ici, produite en petites séries, et portée d'abord par
+                celles et ceux qui font vivre la ville. L'ambition dépasse la Côte d'Ivoire — mais
+                le point de départ, lui, ne bouge pas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ABIDJAN */}
+      <section id="abidjan" className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 py-28">
+          <p className="eyebrow">Abidjan dans la marque</p>
+          <h2 className="mt-3 max-w-2xl text-5xl md:text-6xl">La ville est notre studio</h2>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              { src: ville1, alt: "Rue de marché animée à Abidjan" },
+              { src: ville2, alt: "Le quartier du Plateau à Abidjan à la tombée du jour" },
+              { src: ville3, alt: "Jeunes assis sur un muret dans un quartier d'Abidjan" },
+            ].map((i) => (
+              <img
+                key={i.alt}
+                src={i.src}
+                alt={i.alt}
+                loading="lazy"
+                width={1200}
+                height={1500}
+                className="aspect-[4/5] w-full object-cover grayscale transition-all duration-700 hover:grayscale-0"
+              />
+            ))}
+          </div>
+          <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+            {quartiers.map((q) => (
+              <li key={q}>{q}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* COMMUNAUTE */}
+      <section id="communaute" className="border-t border-border bg-secondary/40">
+        <div className="mx-auto max-w-7xl px-6 py-28">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="eyebrow">La communauté</p>
+              <h2 className="mt-3 text-5xl md:text-6xl">Ceux qui la portent</h2>
+            </div>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Partagez vos photos avec #YAPADRAP. Les meilleures rejoignent la galerie.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-6 sm:grid-cols-3">
+            {[
+              { src: commu1, alt: "Jeune femme en hoodie noir devant un mur peint" },
+              { src: commu2, alt: "Deux jeunes hommes en tee-shirts clairs sur un scooter" },
+              { src: commu3, alt: "Jeune homme souriant en veste marron dans la rue" },
+            ].map((i) => (
+              <img
+                key={i.alt}
+                src={i.src}
+                alt={i.alt}
+                loading="lazy"
+                width={1000}
+                height={1000}
+                className="aspect-square w-full object-cover"
+              />
+            ))}
+          </div>
+
+          <form
+            className="mx-auto mt-16 flex max-w-md flex-col gap-3 sm:flex-row"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <input
+              type="email"
+              required
+              placeholder="votre@email.com"
+              aria-label="Adresse e-mail"
+              className="w-full border border-input bg-card px-4 py-3 text-sm outline-none focus:border-foreground"
+            />
+            <button type="submit" className="btn-ink hover:btn-ink-hover">
+              Rejoindre
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <footer className="bg-[oklch(0.145_0_0)] text-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="font-display text-2xl uppercase tracking-[0.3em]">YAPADRAP</p>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Vêtements essentiels en fibres naturelles, conçus à Marseille.
+            <p className="font-display text-2xl tracking-[0.3em]">YAPADRAP</p>
+            <p className="mt-4 text-sm text-white/60">
+              Streetwear né à Abidjan, Côte d'Ivoire. Plus qu'un mot. Un état d'esprit.
             </p>
           </div>
           {[
-            { t: "Boutique", l: ["Nouveautés", "Femme", "Homme", "Accessoires"] },
+            { t: "Boutique", l: ["Hoodies", "Tee-shirts", "Bas", "Vestes"] },
             { t: "Aide", l: ["Livraison", "Retours", "Guide des tailles", "Contact"] },
-            { t: "Maison", l: ["Notre histoire", "Ateliers", "Matières", "Journal"] },
+            { t: "Marque", l: ["Notre histoire", "L'univers", "Abidjan", "Communauté"] },
           ].map((c) => (
             <div key={c.t}>
-              <p className="eyebrow">{c.t}</p>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-white/50">{c.t}</p>
+              <ul className="mt-4 space-y-2 text-sm text-white/70">
                 {c.l.map((i) => (
                   <li key={i}>
-                    <a href="#collection" className="transition-colors hover:text-foreground">
+                    <a href="#collections" className="transition-colors hover:text-white">
                       {i}
                     </a>
                   </li>
@@ -269,15 +380,15 @@ function Index() {
             </div>
           ))}
         </div>
-        <div className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground">
-          © 2026 YAPADRAP. Tous droits réservés.
+        <div className="border-t border-white/10 py-6 text-center text-xs text-white/50">
+          © 2026 YAPADRAP — Abidjan. Tous droits réservés.
         </div>
       </footer>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="flex w-full flex-col sm:max-w-md">
           <SheetHeader>
-            <SheetTitle className="font-display text-2xl uppercase tracking-[0.2em]">
+            <SheetTitle className="font-display text-2xl tracking-[0.2em]">
               Panier ({count})
             </SheetTitle>
           </SheetHeader>
@@ -356,7 +467,7 @@ function Index() {
                     <span className="text-lg font-bold">{fcfa(total)}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Taxes incluses. Frais de livraison calculés au paiement.
+                    Taxes incluses. Livraison calculée au paiement.
                   </p>
                   <button
                     type="button"
