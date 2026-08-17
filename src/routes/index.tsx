@@ -174,9 +174,16 @@ function Index() {
               </div>
               <div className="mt-5 flex items-baseline justify-between">
                 <h3 className="text-xl">{p.name}</h3>
-                <span className="text-sm font-bold text-foreground">{p.price}</span>
+                <span className="text-sm font-bold text-foreground">{fcfa(p.price)}</span>
               </div>
               <p className="eyebrow mt-2">{p.tag}</p>
+              <button
+                type="button"
+                onClick={() => add(p)}
+                className="btn-ink hover:btn-ink-hover mt-4 w-full"
+              >
+                Ajouter au panier
+              </button>
             </article>
           ))}
         </div>
