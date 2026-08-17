@@ -46,7 +46,7 @@ function Index() {
               </a>
             ))}
           </nav>
-          <a href="#" className="font-display text-2xl tracking-[0.3em] uppercase">
+          <a href="#" className="font-display text-2xl font-bold tracking-[0.3em] uppercase">
             YAPADRAP
           </a>
           <div className="flex gap-6 text-xs uppercase tracking-[0.16em]">
