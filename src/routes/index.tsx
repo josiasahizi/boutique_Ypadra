@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import {
@@ -9,12 +10,15 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
+import {
+  fcfa,
+  productsQuery,
+  sortSizes,
+  totalStock,
+  type Product,
+  type Variant,
+} from "@/lib/products";
 import hero from "@/assets/hero-abidjan.jpg";
-import pBlanc from "@/assets/prod-blanc.jpg";
-import pNoir from "@/assets/prod-noir.jpg";
-import pRose from "@/assets/prod-rose.jpg";
-import pGris from "@/assets/prod-gris.jpg";
-import pMarron from "@/assets/prod-marron.jpg";
 import ville1 from "@/assets/ville-1.jpg";
 import ville2 from "@/assets/ville-2.jpg";
 import ville3 from "@/assets/ville-3.jpg";
@@ -25,70 +29,222 @@ import commu3 from "@/assets/commu-3.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "YAPADRAP — Streetwear né à Abidjan" },
+      { title: "YAPADRAP — Streetwear abidjanais dès 5 000 FCFA" },
       {
         name: "description",
         content:
-          "YAPADRAP, marque de streetwear ivoirienne née à Abidjan. Des pièces sobres et premium portées par un état d'esprit : avancer, créer, oser.",
+          "YAPADRAP, la marque streetwear née à Abidjan : hoodies, tee-shirts, joggers, casquettes et accessoires à prix accessibles, de 5 000 à 25 000 FCFA.",
       },
       { property: "og:title", content: "YAPADRAP — Plus qu'un mot. Un état d'esprit." },
       {
         property: "og:description",
         content:
-          "Streetwear international, identité profondément ivoirienne. Collections sobres, coupes oversize, matières durables.",
+          "Hoodies, tees, joggers et casquettes streetwear made in Abidjan. Coupes oversize, prix accessibles, livraison en Côte d'Ivoire.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(productsQuery);
+  },
   component: Index,
 });
 
 const nav = [
-  { label: "Collections", href: "#collections" },
+  { label: "Shop", href: "#collections" },
   { label: "L'univers", href: "#univers" },
   { label: "Histoire", href: "#histoire" },
   { label: "Abidjan", href: "#abidjan" },
 ];
 
-const products = [
-  { id: "hoodie-blanc", name: "Hoodie oversize Blanc", price: 45000, img: pBlanc, tag: "Coton lourd 400g" },
-  { id: "tee-noir", name: "Tee-shirt boxy Noir", price: 22000, img: pNoir, tag: "Coton peigné" },
-  { id: "hoodie-rose", name: "Hoodie Rose poudré", price: 47000, img: pRose, tag: "Édition limitée" },
-  { id: "cargo-gris", name: "Cargo Gris anthracite", price: 39000, img: pGris, tag: "Twill résistant" },
-  { id: "veste-marron", name: "Veste zippée Marron", price: 58000, img: pMarron, tag: "Canvas délavé" },
+const categories = [
+  { key: "all", label: "Tout" },
+  { key: "hoodies", label: "Hoodies" },
+  { key: "t-shirts", label: "T-shirts" },
+  { key: "joggers", label: "Joggers" },
+  { key: "vestes", label: "Vestes" },
+  { key: "casquettes", label: "Casquettes" },
+  { key: "accessoires", label: "Accessoires" },
 ];
 
-type Product = (typeof products)[number];
-type CartLine = { id: string; name: string; price: number; img: string; qty: number };
-
-const fcfa = (n: number) => `${n.toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ")} FCFA`;
+type CartLine = {
+  key: string;
+  productId: string;
+  variantId: string;
+  name: string;
+  size: string;
+  color: string;
+  price: number;
+  img: string;
+  qty: number;
+  stock: number;
+};
 
 const quartiers = ["Treichville", "Cocody", "Yopougon", "Plateau", "Marcory", "Koumassi", "Abobo"];
 
+function ProductCard({ p, onAdd }: { p: Product; onAdd: (p: Product, v: Variant) => void }) {
+  const colors = useMemo(() => {
+    const seen = new Map<string, string>();
+    p.product_variants.forEach((v) => seen.set(v.color, v.color_hex));
+    return [...seen.entries()].map(([color, hex]) => ({ color, hex }));
+  }, [p]);
+
+  const [color, setColor] = useState(colors[0]?.color ?? "");
+
+  const sizes = useMemo(
+    () =>
+      p.product_variants
+        .filter((v) => v.color === color)
+        .sort((a, b) => sortSizes(a.size, b.size)),
+    [p, color],
+  );
+
+  const [sizeId, setSizeId] = useState<string | null>(null);
+  const selected = sizes.find((v) => v.id === sizeId) ?? null;
+  const stock = totalStock(p);
+
+  return (
+    <article className="group flex flex-col">
+      <div className="relative overflow-hidden bg-muted">
+        <img
+          src={p.image_url}
+          alt={p.name}
+          loading="lazy"
+          width={900}
+          height={1100}
+          className="aspect-[9/11] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+        />
+        {stock === 0 && (
+          <span className="absolute left-0 top-0 bg-foreground px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] text-background">
+            Rupture
+          </span>
+        )}
+      </div>
+
+      <div className="mt-5 flex items-baseline justify-between gap-3">
+        <h3 className="text-lg tracking-normal">{p.name}</h3>
+        <span className="whitespace-nowrap text-sm font-bold text-foreground">
+          {fcfa(p.price_fcfa)}
+        </span>
+      </div>
+      <p className="eyebrow mt-2">{p.tag ?? p.category}</p>
+      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {colors.map((c) => (
+          <button
+            key={c.color}
+            type="button"
+            onClick={() => {
+              setColor(c.color);
+              setSizeId(null);
+            }}
+            aria-label={`Couleur ${c.color}`}
+            aria-pressed={color === c.color}
+            title={c.color}
+            className={`h-6 w-6 rounded-full border transition-all ${
+              color === c.color ? "ring-1 ring-foreground ring-offset-2" : "border-border"
+            }`}
+            style={{ backgroundColor: c.hex }}
+          />
+        ))}
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {sizes.map((v) => {
+          const out = v.stock_quantity === 0;
+          return (
+            <button
+              key={v.id}
+              type="button"
+              disabled={out}
+              onClick={() => setSizeId(v.id)}
+              className={`min-w-11 border px-2 py-1.5 text-xs uppercase tracking-[0.12em] transition-colors ${
+                sizeId === v.id
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border hover:border-foreground"
+              } ${out ? "cursor-not-allowed opacity-35 line-through" : ""}`}
+            >
+              {v.size}
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        disabled={stock === 0}
+        onClick={() => {
+          if (!selected) {
+            toast("Choisis une taille d'abord");
+            return;
+          }
+          onAdd(p, selected);
+        }}
+        className="btn-ink hover:btn-ink-hover mt-4 w-full disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {stock === 0 ? "Rupture de stock" : "Ajouter au panier"}
+      </button>
+    </article>
+  );
+}
+
 function Index() {
+  const { data: products } = useSuspenseQuery(productsQuery);
   const [open, setOpen] = useState(false);
+  const [cat, setCat] = useState("all");
   const [lines, setLines] = useState<CartLine[]>([]);
+
+  const visible = useMemo(
+    () => (cat === "all" ? products : products.filter((p) => p.category === cat)),
+    [products, cat],
+  );
 
   const count = useMemo(() => lines.reduce((s, l) => s + l.qty, 0), [lines]);
   const total = useMemo(() => lines.reduce((s, l) => s + l.qty * l.price, 0), [lines]);
 
-  const add = (p: Product) => {
+  const add = (p: Product, v: Variant) => {
+    const key = v.id;
     setLines((prev) => {
-      const found = prev.find((l) => l.id === p.id);
-      if (found) return prev.map((l) => (l.id === p.id ? { ...l, qty: l.qty + 1 } : l));
-      return [...prev, { id: p.id, name: p.name, price: p.price, img: p.img, qty: 1 }];
+      const found = prev.find((l) => l.key === key);
+      if (found) {
+        if (found.qty >= v.stock_quantity) {
+          toast("Stock maximum atteint pour cette taille");
+          return prev;
+        }
+        return prev.map((l) => (l.key === key ? { ...l, qty: l.qty + 1 } : l));
+      }
+      return [
+        ...prev,
+        {
+          key,
+          productId: p.id,
+          variantId: v.id,
+          name: p.name,
+          size: v.size,
+          color: v.color,
+          price: p.price_fcfa,
+          img: p.image_url,
+          qty: 1,
+          stock: v.stock_quantity,
+        },
+      ];
     });
-    toast.success(`${p.name} ajouté au panier`);
+    toast.success(`${p.name} — ${v.color} / ${v.size} ajouté au panier`);
     setOpen(true);
   };
 
-  const setQty = (id: string, delta: number) =>
+  const setQty = (key: string, delta: number) =>
     setLines((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, qty: l.qty + delta } : l)).filter((l) => l.qty > 0),
+      prev
+        .map((l) =>
+          l.key === key ? { ...l, qty: Math.min(l.qty + delta, l.stock) } : l,
+        )
+        .filter((l) => l.qty > 0),
     );
 
-  const remove = (id: string) => setLines((prev) => prev.filter((l) => l.id !== id));
+  const remove = (key: string) => setLines((prev) => prev.filter((l) => l.key !== key));
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -101,7 +257,7 @@ function Index() {
               </a>
             ))}
           </nav>
-          <a href="#" className="font-display text-2xl tracking-[0.3em]">
+          <a href="#" className="font-display text-2xl font-bold tracking-[0.3em]">
             YAPADRAP
           </a>
           <div className="flex items-center gap-6 text-[11px] uppercase tracking-[0.2em]">
@@ -144,12 +300,15 @@ function Index() {
             <p className="mt-4 max-w-md text-sm uppercase tracking-[0.28em] text-white/80">
               Plus qu'un mot. Un état d'esprit.
             </p>
+            <p className="mt-3 max-w-md text-base text-white/70">
+              Le streetwear d'Abidjan à partir de 5 000 FCFA. Pas de drap, pas de stress.
+            </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <a
                 href="#collections"
                 className="bg-white px-9 py-4 text-[11px] uppercase tracking-[0.2em] text-black transition-opacity hover:opacity-85"
               >
-                Voir les collections
+                Shopper maintenant
               </a>
               <a
                 href="#histoire"
@@ -179,9 +338,8 @@ function Index() {
               les jours difficiles avec le sourire.
             </p>
             <p>
-              YAPADRAP transforme cette phrase en vêtement. Des pièces sobres, épurées, taillées
-              large, pensées pour durer et pour se porter partout — de Treichville à n'importe
-              quelle rue du monde.
+              YAPADRAP transforme cette phrase en vêtement. Des pièces sobres, taillées large,
+              faites pour durer — et à des prix que la jeunesse d'Abidjan peut vraiment se payer.
             </p>
             <div className="grid gap-6 pt-4 sm:grid-cols-3">
               {[
@@ -204,44 +362,42 @@ function Index() {
         <div className="mx-auto max-w-7xl px-6 py-28">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="eyebrow">Collections</p>
-              <h2 className="mt-3 text-5xl md:text-6xl">Essentiels YAPADRAP</h2>
+              <p className="eyebrow">Le shop</p>
+              <h2 className="mt-3 text-5xl md:text-6xl">Ça part vite</h2>
             </div>
             <p className="max-w-xs text-sm text-muted-foreground">
-              Noir, blanc, gris anthracite. Coupes oversize, matières lourdes, logo discret.
+              Hoodies, tees, joggers, casquettes. De 5 000 à 25 000 FCFA. Choisis ta couleur et ta
+              taille.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((p) => (
-              <article key={p.id} className="group">
-                <div className="overflow-hidden bg-muted">
-                  <img
-                    src={p.img}
-                    alt={p.name}
-                    loading="lazy"
-                    width={900}
-                    height={1100}
-                    className="aspect-[9/11] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="mt-5 flex items-baseline justify-between gap-3">
-                  <h3 className="text-lg tracking-normal">{p.name}</h3>
-                  <span className="whitespace-nowrap text-sm font-bold text-foreground">
-                    {fcfa(p.price)}
-                  </span>
-                </div>
-                <p className="eyebrow mt-2">{p.tag}</p>
-                <button
-                  type="button"
-                  onClick={() => add(p)}
-                  className="btn-ink hover:btn-ink-hover mt-4 w-full"
-                >
-                  Ajouter au panier
-                </button>
-              </article>
+          <div className="mt-10 flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() => setCat(c.key)}
+                className={`border px-4 py-2 text-[11px] uppercase tracking-[0.18em] transition-colors ${
+                  cat === c.key
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border hover:border-foreground"
+                }`}
+              >
+                {c.label}
+              </button>
             ))}
           </div>
+
+          <div className="mt-12 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((p) => (
+              <ProductCard key={p.id} p={p} onAdd={add} />
+            ))}
+          </div>
+          {visible.length === 0 && (
+            <p className="mt-12 text-sm text-muted-foreground">
+              Rien dans cette catégorie pour l'instant.
+            </p>
+          )}
         </div>
       </section>
 
@@ -314,7 +470,7 @@ function Index() {
               <h2 className="mt-3 text-5xl md:text-6xl">Ceux qui la portent</h2>
             </div>
             <p className="max-w-sm text-sm text-muted-foreground">
-              Partagez vos photos avec #YAPADRAP. Les meilleures rejoignent la galerie.
+              Balance tes photos avec #YAPADRAP. Les meilleures passent dans la galerie.
             </p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-3">
@@ -356,13 +512,13 @@ function Index() {
       <footer className="bg-[oklch(0.145_0_0)] text-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="font-display text-2xl tracking-[0.3em]">YAPADRAP</p>
+            <p className="font-display text-2xl font-bold tracking-[0.3em]">YAPADRAP</p>
             <p className="mt-4 text-sm text-white/60">
               Streetwear né à Abidjan, Côte d'Ivoire. Plus qu'un mot. Un état d'esprit.
             </p>
           </div>
           {[
-            { t: "Boutique", l: ["Hoodies", "Tee-shirts", "Bas", "Vestes"] },
+            { t: "Boutique", l: ["Hoodies", "T-shirts", "Joggers", "Casquettes"] },
             { t: "Aide", l: ["Livraison", "Retours", "Guide des tailles", "Contact"] },
             { t: "Marque", l: ["Notre histoire", "L'univers", "Abidjan", "Communauté"] },
           ].map((c) => (
@@ -381,7 +537,7 @@ function Index() {
           ))}
         </div>
         <div className="border-t border-white/10 py-6 text-center text-xs text-white/50">
-          © 2026 YAPADRAP — Abidjan. Tous droits réservés.
+          © 2026 YAPADRAP — Abidjan. Tous droits réservés. Prix en FCFA (XOF).
         </div>
       </footer>
 
@@ -409,7 +565,7 @@ function Index() {
             <>
               <ul className="flex-1 space-y-6 overflow-y-auto px-6 py-2">
                 {lines.map((l) => (
-                  <li key={l.id} className="flex gap-4">
+                  <li key={l.key} className="flex gap-4">
                     <img
                       src={l.img}
                       alt={l.name}
@@ -421,7 +577,7 @@ function Index() {
                         <p className="truncate text-sm">{l.name}</p>
                         <button
                           type="button"
-                          onClick={() => remove(l.id)}
+                          onClick={() => remove(l.key)}
                           aria-label={`Retirer ${l.name}`}
                           className="text-muted-foreground transition-colors hover:text-foreground"
                         >
@@ -429,13 +585,13 @@ function Index() {
                         </button>
                       </div>
                       <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                        {fcfa(l.price)}
+                        {l.color} · {l.size} · {fcfa(l.price)}
                       </p>
                       <div className="mt-auto flex items-center justify-between">
                         <div className="flex items-center border border-border">
                           <button
                             type="button"
-                            onClick={() => setQty(l.id, -1)}
+                            onClick={() => setQty(l.key, -1)}
                             aria-label="Diminuer la quantité"
                             className="px-2 py-1.5 transition-colors hover:bg-secondary"
                           >
@@ -444,7 +600,7 @@ function Index() {
                           <span className="min-w-8 text-center text-sm">{l.qty}</span>
                           <button
                             type="button"
-                            onClick={() => setQty(l.id, 1)}
+                            onClick={() => setQty(l.key, 1)}
                             aria-label="Augmenter la quantité"
                             className="px-2 py-1.5 transition-colors hover:bg-secondary"
                           >
@@ -467,7 +623,7 @@ function Index() {
                     <span className="text-lg font-bold">{fcfa(total)}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Taxes incluses. Livraison calculée au paiement.
+                    Prix en FCFA (XOF). Livraison calculée au paiement.
                   </p>
                   <button
                     type="button"
