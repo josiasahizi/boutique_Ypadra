@@ -29,9 +29,9 @@ export const Route = createFileRoute("/")({
 const nav = ["Nouveautés", "Femme", "Homme", "Accessoires", "Journal"];
 
 const products = [
-  { name: "Pull côtelé Ojai", price: "168 €", img: p1, tag: "Laine mérinos" },
-  { name: "Chemise ample Mesa", price: "124 €", img: p2, tag: "Coton bio" },
-  { name: "Sandales Dune", price: "142 €", img: p3, tag: "Cuir tanné" },
+  { name: "Pull côtelé Ojai", price: "110 000 FCFA", img: p1, tag: "Laine mérinos" },
+  { name: "Chemise ample Mesa", price: "81 000 FCFA", img: p2, tag: "Coton bio" },
+  { name: "Sandales Dune", price: "93 000 FCFA", img: p3, tag: "Cuir tanné" },
 ];
 
 function Index() {
