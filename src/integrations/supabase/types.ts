@@ -14,7 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      product_variants: {
+        Row: {
+          color: string
+          color_hex: string
+          created_at: string
+          id: string
+          product_id: string
+          size: Database["public"]["Enums"]["product_size"]
+          stock_quantity: number
+          updated_at: string
+        }
+        Insert: {
+          color: string
+          color_hex?: string
+          created_at?: string
+          id?: string
+          product_id: string
+          size: Database["public"]["Enums"]["product_size"]
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          color_hex?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+          size?: Database["public"]["Enums"]["product_size"]
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: Database["public"]["Enums"]["product_category"]
+          created_at: string
+          description: string
+          id: string
+          image_url: string
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          price_fcfa: number
+          slug: string
+          tag: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["product_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          price_fcfa: number
+          slug: string
+          tag?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["product_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          price_fcfa?: number
+          slug?: string
+          tag?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +108,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      product_category:
+        | "hoodies"
+        | "t-shirts"
+        | "joggers"
+        | "casquettes"
+        | "vestes"
+        | "accessoires"
+      product_size: "XS" | "S" | "M" | "L" | "XL" | "XXL" | "TU"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +242,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      product_category: [
+        "hoodies",
+        "t-shirts",
+        "joggers",
+        "casquettes",
+        "vestes",
+        "accessoires",
+      ],
+      product_size: ["XS", "S", "M", "L", "XL", "XXL", "TU"],
+    },
   },
 } as const
