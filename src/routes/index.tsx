@@ -39,12 +39,42 @@ export const Route = createFileRoute("/")({
 const nav = ["Nouveautés", "Femme", "Homme", "Accessoires", "Journal"];
 
 const products = [
-  { name: "Pull côtelé Ojai", price: "110 000 FCFA", img: p1, tag: "Laine mérinos" },
-  { name: "Chemise ample Mesa", price: "81 000 FCFA", img: p2, tag: "Coton bio" },
-  { name: "Sandales Dune", price: "93 000 FCFA", img: p3, tag: "Cuir tanné" },
+  { id: "ojai", name: "Pull côtelé Ojai", price: 110000, img: p1, tag: "Laine mérinos" },
+  { id: "mesa", name: "Chemise ample Mesa", price: 81000, img: p2, tag: "Coton bio" },
+  { id: "dune", name: "Sandales Dune", price: 93000, img: p3, tag: "Cuir tanné" },
 ];
 
+type Product = (typeof products)[number];
+type CartLine = { id: string; name: string; price: number; img: string; qty: number };
+
+const fcfa = (n: number) => `${n.toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ")} FCFA`;
+
 function Index() {
+  const [open, setOpen] = useState(false);
+  const [lines, setLines] = useState<CartLine[]>([]);
+
+  const count = useMemo(() => lines.reduce((s, l) => s + l.qty, 0), [lines]);
+  const total = useMemo(() => lines.reduce((s, l) => s + l.qty * l.price, 0), [lines]);
+
+  const add = (p: Product) => {
+    setLines((prev) => {
+      const found = prev.find((l) => l.id === p.id);
+      if (found) return prev.map((l) => (l.id === p.id ? { ...l, qty: l.qty + 1 } : l));
+      return [...prev, { id: p.id, name: p.name, price: p.price, img: p.img, qty: 1 }];
+    });
+    toast.success(`${p.name} ajouté au panier`);
+    setOpen(true);
+  };
+
+  const setQty = (id: string, delta: number) =>
+    setLines((prev) =>
+      prev
+        .map((l) => (l.id === id ? { ...l, qty: l.qty + delta } : l))
+        .filter((l) => l.qty > 0),
+    );
+
+  const remove = (id: string) => setLines((prev) => prev.filter((l) => l.id !== id));
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur">
