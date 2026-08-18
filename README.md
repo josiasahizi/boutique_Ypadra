@@ -1,14 +1,18 @@
-# Welcome to your Lovable project
+# Site Clone Magic
+
+Pouvez-vous cloner ce site Web s'il vous plaît ? Obtenez au clone sur le site Web original. 
+
+https://themes.shopify.com/themes/palo-alto/presets/palo-alto?surface_detail=clothing&surface_inter_position=1&surface_intra_position=10&surface_type=industry
 
 This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/8c2b07aa-46c1-4cd2-b16a-02e2bbba1c99).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +24,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
